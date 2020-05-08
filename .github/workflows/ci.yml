@@ -32,11 +32,6 @@ jobs:
         env:
           CI: true
 
-      - name: Run npm login & npm publish
-        run: |
-          echo '//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}' > ~/.npmrc
-          npm publish
-
       - name: Create Changelogs
         id: changelog
         run: |
@@ -44,6 +39,11 @@ jobs:
           RELEASE_TYPE="$(node bin/cli.js --release-type)"
           echo "::set-output name=changelog_text::$CHANGELOG_TEXT"
           echo "::set-output name=release_type::$RELEASE_TYPE"
+
+      - name: Run npm login & npm publish
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}' > ~/.npmrc
+          npm publish --tag ${{ steps.changelog.outputs.release_type == 'prerelease' ? 'next' : 'latest' }}
 
       - name: Create Release
         id: create_release
