@@ -10,7 +10,7 @@ An action can create changelogs between tags
 - `changelogs`: Changelogs
 
 ### Example workflow - create changelogs
-On every `push` to a tag matching the pattern `v*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release):
+On every `push` to a tag matching the pattern `v*`
 
 ```yaml
 on:
