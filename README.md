@@ -1,2 +1,5 @@
-# action-create-changelog
-An action can create changelog between tags
+# create changelogs
+
+An action can create changelogs between tags
+
+

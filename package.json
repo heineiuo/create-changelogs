@@ -1,0 +1,35 @@
+{
+  "name": "create-changelogs",
+  "version": "0.1.0",
+  "description": "",
+  "main": "main.js",
+  "bin": {
+    "create-changelogs": "./bin/cli"
+  },
+  "files": [
+    "main.js",
+    "bin"
+  ],
+  "dependencies": {
+    "semver": "^7.3.2",
+    "simple-git": "^2.4.0",
+    "yargs": "^15.3.1"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.1"
+  },
+  "scripts": {
+    "build": "ncc build actions.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heineiuo/create-changelogs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/heineiuo/create-changelogs/issues"
+  },
+  "homepage": "https://github.com/heineiuo/create-changelogs#readme"
+}

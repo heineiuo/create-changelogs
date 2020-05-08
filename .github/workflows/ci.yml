@@ -1,0 +1,58 @@
+on:
+  push:
+    tags:
+      - "v*"
+
+name: Release
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+
+      - run: |
+          git fetch --prune --unshallow
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Run npm build
+        run: |
+          npm install
+        env:
+          CI: true
+
+      - name: Run npm login & npm publish
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}' > ~/.npmrc
+          npm publish
+
+      - name: Create Changelogs
+        id: changelog
+        run: |
+          CHANGELOG_TEXT="$(node index.js)"
+          RELEASE_TYPE="$(node index.js --release-type)"
+          echo "::set-output name=changelog_text::$CHANGELOG_TEXT"
+          echo "::set-output name=release_type::$RELEASE_TYPE"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: ${{ steps.changelog.outputs.changelog_text }}
+          draft: false
+          prerelease: ${{ steps.changelog.outputs.release_type == 'prerelease' }}

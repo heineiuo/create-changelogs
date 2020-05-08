@@ -1,0 +1,14 @@
+name: "Create Changelogs"
+description: "Create for your repository"
+author: "heineiuo"
+outputs:
+  release_type:
+    description: "release or prerelease"
+  change_logs:
+    description: "Changelogs between latest tag and previous release tag"
+runs:
+  using: "node12"
+  main: "actions.js"
+branding:
+  icon: "tag"
+  color: "gray-dark"
