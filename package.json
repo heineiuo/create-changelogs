@@ -1,6 +1,6 @@
 {
   "name": "create-changelogs",
-  "version": "0.1.3-alpine.3",
+  "version": "0.1.3-alpine.4",
   "description": "",
   "main": "main.js",
   "bin": {
