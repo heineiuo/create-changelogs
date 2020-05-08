@@ -40,8 +40,8 @@ jobs:
       - name: Create Changelogs
         id: changelog
         run: |
-          CHANGELOG_TEXT="$(node index.js)"
-          RELEASE_TYPE="$(node index.js --release-type)"
+          CHANGELOG_TEXT="$(node bin/cli.js)"
+          RELEASE_TYPE="$(node bin/cli.js --release-type)"
           echo "::set-output name=changelog_text::$CHANGELOG_TEXT"
           echo "::set-output name=release_type::$RELEASE_TYPE"
 
