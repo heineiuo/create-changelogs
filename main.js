@@ -58,7 +58,6 @@ async function getReleaseType() {
     throw new Error('Error: Invalid tag')
   }
 
-  console.log({ ver, tagList })
   return ver.prerelease.length > 0 ? 'prerelease' : 'release'
 }
 
