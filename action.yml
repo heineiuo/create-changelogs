@@ -4,7 +4,7 @@ author: "heineiuo"
 outputs:
   release_type:
     description: "release or prerelease"
-  change_logs:
+  changelogs:
     description: "Changelogs between latest tag and previous release tag"
 runs:
   using: "node12"
