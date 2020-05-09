@@ -1,7 +1,7 @@
 const argv = require('yargs').argv
 const main = require('../src/main')
 
-async function main() {
+async function cli() {
   if (argv.releaseType) {
     console.log(await main.getReleaseType())
     return
@@ -11,4 +11,4 @@ async function main() {
   console.log(main.escapeChangelog(rawChangelog))
 }
 
-main()
+cli()
