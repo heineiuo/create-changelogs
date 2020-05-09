@@ -6,6 +6,7 @@ function findPrevVersionTag(tagList) {
   if (!latestVer) return null
   for (tagName of tagList.all) {
     const ver = semver.parse(tagName)
+    if (tagName === tagList.latest) continue
     if (!ver) continue
     if (ver.prerelease.length > 0) continue
     return tagName
@@ -14,7 +15,7 @@ function findPrevVersionTag(tagList) {
 }
 
 async function getCommitsBetweenTags(git, prevTag, nextTag) {
-  const results = await git.log([prevTag, nextTag])
+  const results = await git.log({ from: prevTag, to: nextTag })
   const { all } = results
 
   const messages = []
@@ -26,9 +27,16 @@ async function getCommitsBetweenTags(git, prevTag, nextTag) {
   return messages.sort()
 }
 
+async function getSortedTagList(git) {
+  const tagList = await git.tags({ '--sort': 'creatordate' })
+  const all = tagList.all.reverse()
+  const latest = tagList.all[0]
+  return { all, latest }
+}
+
 async function createChangelogs() {
   const git = simpleGit(process.cwd())
-  const tagList = await git.tags({ '--sort': 'creatordate' })
+  const tagList = await getSortedTagList(git)
 
   if (!tagList.latest) {
     throw new Error('Error: No tags found.')
@@ -36,7 +44,7 @@ async function createChangelogs() {
 
   const prevVersionTag = findPrevVersionTag(tagList)
 
-  const commits = await getCommitsBetweenTags(git, prevVersionTag, tagList.all[tagList.all.length - 1])
+  const commits = await getCommitsBetweenTags(git, prevVersionTag, tagList.latest)
   let changelog = `Changes \n${commits.join('\n')}`
   changelog = changelog.replace(/%/g, '%25')
   changelog = changelog.replace(/\n/g, '%0A')
@@ -47,13 +55,13 @@ async function createChangelogs() {
 
 async function getReleaseType() {
   const git = simpleGit(process.cwd())
-  const tagList = await git.tags({ '--sort': 'creatordate' })
+  const tagList = await getSortedTagList(git)
   if (!tagList.latest) {
     throw new Error('Error: No tags found.')
     return
   }
 
-  const ver = semver.parse(tagList.all[tagList.all.length - 1])
+  const ver = semver.parse(tagList.latest)
   if (!ver) {
     throw new Error('Error: Invalid tag')
   }
