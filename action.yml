@@ -8,7 +8,7 @@ outputs:
     description: "Changelogs between latest tag and previous release tag"
 runs:
   using: "node12"
-  main: "actions.js"
+  main: "dist/index.js"
 branding:
   icon: "tag"
   color: "gray-dark"
