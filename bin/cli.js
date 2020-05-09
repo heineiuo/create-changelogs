@@ -1,5 +1,5 @@
 const argv = require('yargs').argv
-const { getReleaseType, createChangelogs } = require('../main')
+const { getReleaseType, createChangelogs } = require('../src/main')
 
 async function main() {
   if (argv.releaseType) {

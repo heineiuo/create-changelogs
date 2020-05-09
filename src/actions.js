@@ -1,5 +1,5 @@
 const core = require('@actions/core');
-const { getReleaseType, createChangelogs } = require('./main')
+const { getReleaseType, createChangelogs } = require('./main');
 
 
 async function run() {
@@ -11,4 +11,6 @@ async function run() {
   }
 }
 
-module.exports = run;
+if (require.main === module) {
+  run();
+}

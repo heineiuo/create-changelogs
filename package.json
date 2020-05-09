@@ -2,7 +2,7 @@
   "name": "create-changelogs",
   "version": "0.2.3",
   "description": "",
-  "main": "dist/index.js",
+  "main": "src/main.js",
   "bin": {
     "create-changelogs": "./bin/cli"
   },
@@ -20,7 +20,7 @@
     "@zeit/ncc": "^0.22.1"
   },
   "scripts": {
-    "build": "ncc build actions.js"
+    "build": "ncc build src/actions.js"
   },
   "repository": {
     "type": "git",
