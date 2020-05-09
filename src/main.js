@@ -53,6 +53,14 @@ async function createChangelogs() {
   return changelog
 }
 
+function escapeChangelog(input) {
+  let changelog = input
+  changelog = changelog.replace(/%/g, '%25')
+  changelog = changelog.replace(/\n/g, '%0A')
+  changelog = changelog.replace(/\r/g, '%0D')
+  return changelog
+}
+
 async function getReleaseType() {
   const git = simpleGit(process.cwd())
   const tagList = await getSortedTagList(git)
@@ -72,5 +80,6 @@ async function getReleaseType() {
 
 module.exports = {
   createChangelogs,
-  getReleaseType
+  getReleaseType,
+  escapeChangelog
 }

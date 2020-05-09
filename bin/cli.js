@@ -1,13 +1,14 @@
 const argv = require('yargs').argv
-const { getReleaseType, createChangelogs } = require('../src/main')
+const main = require('../src/main')
 
 async function main() {
   if (argv.releaseType) {
-    console.log(await getReleaseType())
+    console.log(await main.getReleaseType())
     return
   }
 
-  console.log(await createChangelogs())
+  const rawChangelog = await main.createChangelogs()
+  console.log(main.escapeChangelog(rawChangelog))
 }
 
 main()
