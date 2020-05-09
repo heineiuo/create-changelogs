@@ -45,12 +45,8 @@ async function createChangelogs() {
   const prevVersionTag = findPrevVersionTag(tagList)
 
   const commits = await getCommitsBetweenTags(git, prevVersionTag, tagList.latest)
-  let changelog = `Changes \n${commits.join('\n')}`
-  changelog = changelog.replace(/%/g, '%25')
-  changelog = changelog.replace(/\n/g, '%0A')
-  changelog = changelog.replace(/\r/g, '%0D')
 
-  return changelog
+  return `Changes \n${commits.join('\n')}`
 }
 
 function escapeChangelog(input) {
