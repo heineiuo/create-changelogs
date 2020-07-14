@@ -7,7 +7,8 @@ An action can create changelogs between tags
 ### Outputs
 
 - `release_type`: `prerelease` or `release`
-- `changelogs`: Changelogs
+- `changelogs`: generated changelogs
+- `tag_name`: git tag name, like `v1.0.0`
 
 ### Example workflow - create changelogs
 On every `push` to a tag matching the pattern `v*`
@@ -44,7 +45,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
-          body: ${{ steps.changelogs.outputs.changelog_text }}
+          body: ${{ steps.changelogs.outputs.changelogs }}
           draft: false
           prerelease: ${{ steps.changelogs.outputs.release_type == 'prerelease' }}
 
