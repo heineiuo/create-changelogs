@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v2
       
       - run: |
-        git fetch --prune --unshallow
+        git fetch --prune --unshallow --tags
 
       - name: Create changelogs
         id: changelogs
