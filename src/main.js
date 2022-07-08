@@ -1,56 +1,95 @@
 const semver = require("semver");
-const simpleGit = require("simple-git/promise");
+const simpleGit = require("simple-git");
 
-function findPrevVersionTag(tagList) {
-  let latestVer = semver.parse(tagList.latest);
-  if (!latestVer) return null;
-  for (tagName of tagList.all) {
-    const ver = semver.parse(tagName);
-    if (tagName === tagList.latest) continue;
-    if (!ver) continue;
-    if (ver.prerelease.length > 0) continue;
-    return tagName;
+const git = simpleGit(process.cwd());
+
+function parseCommitMessage(message) {
+  const result = {};
+  for (const outputName of [
+    "valid",
+    "raw",
+    "major",
+    "minor",
+    "patch",
+    "is_prerelease",
+    "prerelease_name",
+    "prerelease_number",
+    "build_number",
+    "version",
+  ]) {
+    result[outputName] = null;
   }
-  return null;
+  result.valid = false;
+  result.is_prerelease = false;
+
+  try {
+    const parsed = semver.parse(message);
+    if (parsed) {
+      Object.assign(result, parsed);
+      result.valid = true;
+      if (parsed.build.length > 0) {
+        try {
+          result.build_number = parseInt(parsed.build[0], 10);
+        } catch (e) {}
+      }
+      if (parsed.prerelease.length > 0) {
+        result.is_prerelease = true;
+        result.prerelease_name = parsed.prerelease[0];
+        result.prerelease_number = parsed.prerelease[1];
+      } else {
+        result.is_prerelease = false;
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+  return result;
 }
 
-async function getCommitsBetweenTags(git, prevTag, nextTag) {
-  const results = await git.log({ from: prevTag, to: nextTag });
-  const { all } = results;
-
-  const messages = [];
-  for (const line of all) {
-    if (line.refs.indexOf("tag") > -1) continue;
-    messages.push(`* ${line.message}`);
-  }
-
-  return messages.sort();
-}
-
-async function getSortedTagList(git) {
-  const tagList = await git.tags({ "--sort": "creatordate" });
-  const all = tagList.all.reverse();
-  const latest = tagList.all[0];
-  return { all, latest };
+async function parseLatestCommitMessage() {
+  const log = await git.log();
+  return parseCommitMessage(log.latest.message);
 }
 
 async function createChangelogs() {
-  const git = simpleGit(process.cwd());
-  const tagList = await getSortedTagList(git);
+  const logs = await git.log();
 
-  if (!tagList.latest) {
-    throw new Error("Error: No tags found.");
+  let isFirst = true;
+  let hasPrereleaseReached = false;
+  const messagesAfterLatestPrerelease = [];
+  const messagesAfterLatestRelease = [];
+
+  for (const log of logs.all) {
+    const semverInfo = parseCommitMessage(log.message);
+    if (!semverInfo.valid) {
+      if (!hasPrereleaseReached) {
+        messagesAfterLatestPrerelease.unshift(`* ${log.message}`);
+      } else {
+        messagesAfterLatestRelease.unshift(`* ${log.message}`);
+      }
+      isFirst = false;
+      continue;
+    } else if (isFirst) {
+      isFirst = false;
+      continue;
+    } else if (semverInfo.is_prerelease) {
+      hasPrereleaseReached = true;
+      continue;
+    } else {
+      break;
+    }
   }
 
-  const prevVersionTag = findPrevVersionTag(tagList);
+  messagesAfterLatestPrerelease.sort();
+  messagesAfterLatestRelease.sort();
 
-  const commits = await getCommitsBetweenTags(
-    git,
-    prevVersionTag,
-    tagList.latest
-  );
-
-  return `Changes \n${commits.join("\n")}`;
+  if (messagesAfterLatestRelease.length > 0) {
+    return `Changes \n${messagesAfterLatestPrerelease.join(
+      "\n"
+    )}\n Recent Changes\n ${messagesAfterLatestPrerelease.join("\n")}`;
+  } else {
+    return `Changes \n${messagesAfterLatestPrerelease.join("\n")}`;
+  }
 }
 
 function escapeChangelog(input) {
@@ -62,29 +101,19 @@ function escapeChangelog(input) {
 }
 
 async function getReleaseType() {
-  const git = simpleGit(process.cwd());
-  const tagList = await getSortedTagList(git);
-  if (!tagList.latest) {
-    throw new Error("Error: No tags found.");
-    return;
+  const latest = await parseLatestCommitMessage();
+  if (!latest.valid) {
+    return null;
   }
-
-  const ver = semver.parse(tagList.latest);
-  if (!ver) {
-    throw new Error("Error: Invalid tag");
-  }
-
-  return ver.prerelease.length > 0 ? "prerelease" : "release";
+  return latest.is_prerelease ? "prerelease" : "release";
 }
 
 async function getTagName() {
-  const git = simpleGit(process.cwd());
-  const tagList = await getSortedTagList(git);
-  if (!tagList.latest) {
-    throw new Error("Error: No tags found.");
-    return;
+  const latest = await parseLatestCommitMessage();
+  if (!latest.valid) {
+    return null;
   }
-  return tagList.latest;
+  return latest.raw;
 }
 
 module.exports = {
@@ -92,4 +121,5 @@ module.exports = {
   createChangelogs,
   getReleaseType,
   escapeChangelog,
+  parseLatestCommitMessage,
 };
