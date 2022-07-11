@@ -6,10 +6,20 @@ An action can create changelogs between tags
 
 ### Outputs
 
-- `release_type`: `prerelease` or `release`
-- `changelogs`: generated changelogs
-- `tag_name`: git tag name, like `v1.0.0`
-
+- `release_type`: {string} `prerelease` or `release`
+- `changelogs`: {string} generated changelogs
+- `tag_name`: {string} git tag name, like `v1.0.0`
+- `valid`: {boolean} is raw value a valid semver
+- `raw`: {string} raw value
+- `major`: {number|null} major
+- `minor`: number|null} minor
+- `patch`: {number|null} patch
+- `is_prerelease`: {boolean|null} is prerelease
+- `prerelease_name`: {string|null} prerelease name, like beta in v1.2.3-beta.4
+- `prerelease_number`: {number|null} prerelease number, like 4 in v1.2.3-beta.4
+- `build_number`: {number|null} build number, like 55555 in v1.2.3+55555
+- `version`:{string|null} version, like 1.2.3-beta.1 in v1.2.3-beta.1 or 1.2.3 in v1.2.3+4444
+    
 ### Example workflow - create changelogs
 On every `push` to a tag matching the pattern `v*`
 
