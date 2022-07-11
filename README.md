@@ -45,7 +45,7 @@ jobs:
 
       - name: Create changelogs
         id: changelogs
-        uses: heineiuo/create-changelogs@master
+        uses: heineiuo/create-changelogs@master # 👀
 
       - name: Create Release
         id: create_release
